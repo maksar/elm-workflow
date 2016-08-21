@@ -35,6 +35,7 @@ import User exposing (User)
 import Permission exposing (Permission(..))
 import GenericSet exposing (GenericSet)
 
+
 {-| Record representing workflow status. Consists of:
     `stepsConfig` - array, containing step's threshold values;
     `currentStep` integer - number of the current workflow step;
@@ -51,6 +52,7 @@ emptySet : GenericSet User
 emptySet =
     GenericSet.empty User.compare
 
+
 {-| Creates `Workflow` from provided list of threshold values.
 
     init [ 1, 2 ] == { stepsConfig = Array.fromList [1,2], currentStep = 0, votes = Array.fromList [Set.fromList [],Set.fromList []] }
@@ -66,13 +68,14 @@ init steps =
         , votes = repeat (length config) emptySet
         }
 
+
 {-| Performs approve (vote) operation from given `User` on a `Workflow`.
 
     init [ 1, 2 ] |> approve (create "Bob" True [VOTE]) == { stepsConfig = Array.fromList [1,2], currentStep = 1, votes = Array.fromList [Set.fromList [User { name = "Bob", active = True, permissions = Array.fromList [VOTE] }],Set.fromList []] }
 -}
 approve : User -> Workflow -> Workflow
 approve user workflow =
-    if not (User.active user) then
+    if locked user workflow then
         workflow
     else
         case User.permission workflow.currentStep user of
@@ -90,7 +93,7 @@ approve user workflow =
 -}
 reject : User -> Workflow -> Workflow
 reject user workflow =
-    if not (User.active user) then
+    if locked user workflow then
         workflow
     else
         case User.permission workflow.currentStep user of
@@ -119,15 +122,32 @@ decrement workflow =
         clean workflow =
             { workflow | votes = set workflow.currentStep emptySet workflow.votes }
     in
-        if finished workflow then
-            workflow
-        else if workflow.currentStep == 0 then
+        if workflow.currentStep == 0 then
             workflow |> clean
         else
             workflow
                 |> clean
                 |> step Backward
                 |> clean
+
+
+locked : User -> Workflow -> Bool
+locked user workflow =
+    let
+        votes =
+            withDefault emptySet (get workflow.currentStep workflow.votes)
+
+        alreadyVoted user =
+            GenericSet.member user votes
+    in
+        if finished workflow then
+            True
+        else if not (User.active user) then
+            True
+        else if alreadyVoted user then
+            True
+        else
+            False
 
 
 vote : User -> Workflow -> Workflow
@@ -149,6 +169,7 @@ vote user workflow =
             newWorkflow |> increment user
         else
             newWorkflow
+
 
 {-| Returns high-level `Workflow` completion status. `Workflow` becomes completed after going through all its steps.
 -}
