@@ -7,6 +7,7 @@ module Permission exposing (..)
 
 -}
 
+
 {-| User can vote (having `VOTE` permission) on particular step of the `Workflow` or completely skip the whole step
     (having `FORCE` permission). Without any permissions (`NONE`), `User` cannot affect the `Workflow`.
 -}

@@ -6,4 +6,4 @@ import Tests
 
 main : Program Never
 main =
-    Test.runSuite Tests.all
+    Test.runSuiteHtml Tests.all
