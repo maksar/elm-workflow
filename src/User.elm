@@ -6,6 +6,7 @@ module User
         , compare
         , name
         , active
+        , inactive
         , permissions
         )
 
@@ -18,7 +19,7 @@ module User
 @docs create
 
 # Taking User Apart
-@docs name, active, permissions
+@docs name, active, inactive, permissions
 
 # Getting Permission for a step
 @docs permission
@@ -75,7 +76,6 @@ name : User -> String
 name (User { name }) =
     name
 
-
 {-| Extracts operational status from `User` instance.
 
     active <| create "Bob" True [ NONE, VOTE ] == True
@@ -83,6 +83,15 @@ name (User { name }) =
 active : User -> Bool
 active (User { active }) =
     active
+
+
+{-| Extracts operational status from `User` instance.
+
+    inactive <| create "Bob" False [ NONE, VOTE ] == True
+-}
+inactive : User -> Bool
+inactive (User { active }) =
+    not active
 
 
 {-| Extracts list of `Permission`s from `User` instance.

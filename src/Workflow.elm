@@ -29,6 +29,7 @@ module Workflow
 
 import Array exposing (Array, length, repeat, fromList, get, set)
 import Array.Extra exposing (update)
+import List exposing (any)
 import Maybe exposing (withDefault)
 import Random exposing (maxInt)
 import User exposing (User)
@@ -123,7 +124,8 @@ decrement workflow =
             { workflow | votes = set workflow.currentStep emptySet workflow.votes }
     in
         if workflow.currentStep == 0 then
-            workflow |> clean
+            workflow
+                |> clean
         else
             workflow
                 |> clean
@@ -133,21 +135,11 @@ decrement workflow =
 
 locked : User -> Workflow -> Bool
 locked user workflow =
-    let
-        votes =
-            withDefault emptySet (get workflow.currentStep workflow.votes)
-
-        alreadyVoted user =
-            GenericSet.member user votes
-    in
-        if finished workflow then
-            True
-        else if not (User.active user) then
-            True
-        else if alreadyVoted user then
-            True
-        else
-            False
+    any identity
+        [ finished workflow
+        , User.inactive user
+        , GenericSet.member user <| currentStepVotes workflow
+        ]
 
 
 vote : User -> Workflow -> Workflow
@@ -163,12 +155,17 @@ vote user workflow =
             withDefault maxInt (get newWorkflow.currentStep newWorkflow.stepsConfig)
 
         votesCount =
-            GenericSet.size <| withDefault emptySet (get newWorkflow.currentStep newWorkflow.votes)
+            GenericSet.size <| currentStepVotes newWorkflow
     in
         if votesCount >= requiredVotes then
             newWorkflow |> increment user
         else
             newWorkflow
+
+
+currentStepVotes : Workflow -> GenericSet User
+currentStepVotes workflow =
+    withDefault emptySet (get workflow.currentStep workflow.votes)
 
 
 {-| Returns high-level `Workflow` completion status. `Workflow` becomes completed after going through all its steps.
