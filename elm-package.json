@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "summary": "Library to demonstrate one of the possible Workflow implementations.",
     "repository": "https://github.com/maksar/elm-workflow.git",
     "license": "BSD3",
@@ -18,8 +18,5 @@
         "jinjor/elm-time-travel": "1.0.17 <= v < 2.0.0",
         "robertjlooby/elm-generic-dict": "1.0.1 <= v < 2.0.0"
     },
-    "elm-version": "0.17.1 <= v < 0.18.0",
-    "sublime-build": {
-        "main": "."
-    }
+    "elm-version": "0.17.1 <= v < 0.18.0"
 }
