@@ -1,5 +1,3 @@
-
-
 module Tests exposing (all)
 
 import Function.Extra exposing (twice)
@@ -40,19 +38,27 @@ workflowVotedByUser user =
     let
         user =
             create (name user) True [ VOTE, VOTE ]
-
     in
         initWorkflow |> twice (approve user)
 
+
 test : Test
-test = ElmTest.test "Real world Workflow" <| ElmTest.assertEqual True (finished realWorldWorkflow)
+test =
+    ElmTest.test "Real world Workflow" <| ElmTest.assertEqual True (finished realWorldWorkflow)
+
 
 claims : Claim
 claims =
     Check.suite "Workflow rules"
         [ claim "Same user cannot vote twice"
-            `that` (\( user, operation ) -> (workflowVotedByUser user |> apply operation user).currentStep)
-            `is` (\( user, operation ) -> (workflowVotedByUser user).currentStep)
+            `that`
+                (\( user, operation ) ->
+                    (workflowVotedByUser user |> apply operation user).currentStep
+                )
+            `is`
+                (\( user, operation ) ->
+                    (workflowVotedByUser user).currentStep
+                )
             `for` tuple ( userProducer, operationProducer )
         , claim "Workflow should remain in its bounds"
             `true`
@@ -70,4 +76,6 @@ claims =
 all : Test
 all =
     ElmTest.suite "A Test Suite"
-        [ evidenceToTest (quickCheck claims), test ]
+        [ test
+        , evidenceToTest (quickCheck claims)
+        ]
