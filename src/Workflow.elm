@@ -11,8 +11,8 @@ module Workflow
     Each step has a threshold value.
     To proceed to the next step, it's necessary to get threshold number of votes.
     Power users can force skip one step.
-    User with ar least `VOTE` permission can `reject` the curren step (previous step re-starts).
-    Inactive users canot `approve` or `reject`. User can only vote once on the same step.
+    User with at least `VOTE` permission can `reject` the current step (previous step re-starts).
+    Inactive users cannot `approve` or `reject`. User can only vote once on the same step.
 
 # Definition
 @docs Workflow
