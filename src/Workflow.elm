@@ -34,7 +34,11 @@ import Maybe exposing (withDefault)
 import Random exposing (maxInt)
 import User exposing (User)
 import Permission exposing (Permission(..))
-import GenericSet exposing (GenericSet)
+import DictSet exposing (DictSet, insert, member, size, empty)
+
+
+type alias Bucket =
+    DictSet String User
 
 
 {-| Record representing workflow status. Consists of:
@@ -45,13 +49,13 @@ import GenericSet exposing (GenericSet)
 type alias Workflow =
     { stepsConfig : Array Int
     , currentStep : Int
-    , votes : Array (GenericSet User)
+    , votes : Array Bucket
     }
 
 
-emptySet : GenericSet User
+emptySet : Bucket
 emptySet =
-    GenericSet.empty User.compare
+    empty User.name
 
 
 {-| Creates `Workflow` from provided list of threshold values.
@@ -112,7 +116,7 @@ increment : User -> Workflow -> Workflow
 increment user workflow =
     let
         newWorkflow =
-            { workflow | votes = update workflow.currentStep (\bucket -> GenericSet.insert user bucket) workflow.votes }
+            { workflow | votes = update workflow.currentStep (\bucket -> insert user bucket) workflow.votes }
     in
         step Forward newWorkflow
 
@@ -138,7 +142,7 @@ locked user workflow =
     any identity
         [ finished workflow
         , User.inactive user
-        , GenericSet.member user <| currentStepVotes workflow
+        , member user <| currentStepVotes workflow
         ]
 
 
@@ -146,7 +150,7 @@ vote : User -> Workflow -> Workflow
 vote user workflow =
     let
         newVotes =
-            update workflow.currentStep (\bucket -> GenericSet.insert user bucket) workflow.votes
+            update workflow.currentStep (\bucket -> insert user bucket) workflow.votes
 
         newWorkflow =
             { workflow | votes = newVotes }
@@ -155,7 +159,7 @@ vote user workflow =
             withDefault maxInt (get newWorkflow.currentStep newWorkflow.stepsConfig)
 
         votesCount =
-            GenericSet.size <| currentStepVotes newWorkflow
+            size <| currentStepVotes newWorkflow
     in
         if votesCount >= requiredVotes then
             newWorkflow |> increment user
@@ -163,7 +167,7 @@ vote user workflow =
             newWorkflow
 
 
-currentStepVotes : Workflow -> GenericSet User
+currentStepVotes : Workflow -> Bucket
 currentStepVotes workflow =
     withDefault emptySet (get workflow.currentStep workflow.votes)
 

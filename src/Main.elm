@@ -5,13 +5,11 @@ import Permission exposing (Permission(..))
 import User exposing (User, create, name)
 import Html exposing (Html, text)
 import Dict exposing (Dict, insert, empty)
-import GenericSet exposing (GenericSet)
 import Array exposing (Array)
+import DictSet exposing (DictSet)
 import Html.Attributes exposing (style, class)
 import Html.Events exposing (onClick)
-import TimeTravel.Html.App as TimeTravel
-
-
+import Html
 
 type alias Model =
     { users : List User, workflow : Workflow }
@@ -108,10 +106,10 @@ viewUser model index user =
             ]
 
 
-viewVotes : Model -> GenericSet User -> Html Msg
+viewVotes : Model -> DictSet String User -> Html Msg
 viewVotes model votes =
     let
-        box user =
+        box (name, user) =
             Html.div
                 [ style
                     [ ( "width", "100%" )
@@ -122,12 +120,12 @@ viewVotes model votes =
                     , ( "opacity", "1" )
                     ]
                 ]
-                [ text <| toString <| (name user) ]
+                [ text <| toString <| name ]
     in
-        Html.div [] (List.map box (GenericSet.toList votes))
+        Html.div [] (List.map box (DictSet.toList votes))
 
 
-viewStep : Model -> Int -> GenericSet User -> Html Msg
+viewStep : Model -> Int -> DictSet String User -> Html Msg
 viewStep model index votes =
     Html.div
         [ style
@@ -175,7 +173,7 @@ subscriptions model =
     Sub.none
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
-    TimeTravel.program
+    Html.program
         { init = init, view = view, update = update, subscriptions = subscriptions }
