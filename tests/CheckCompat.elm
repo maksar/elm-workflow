@@ -1,6 +1,7 @@
 module CheckCompat exposing (..)
 
 import Check
+import Test
 
 that =
     flip Check.that
@@ -16,3 +17,6 @@ for =
 
 true =
     flip Check.true
+
+test str expr =
+    Test.test str <| \_ -> expr

@@ -139,11 +139,14 @@ decrement workflow =
 
 locked : User -> Workflow -> Bool
 locked user workflow =
-    any identity
-        [ finished workflow
-        , User.inactive user
-        , member user <| currentStepVotes workflow
-        ]
+    let
+        currentBucket = currentStepVotes workflow
+    in
+        any identity
+            [ finished workflow
+            , User.inactive user
+            , member user currentBucket
+            ]
 
 
 vote : User -> Workflow -> Workflow

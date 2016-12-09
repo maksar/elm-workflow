@@ -5,7 +5,7 @@ import Function.Extra exposing (twice)
 import Check exposing (Claim, claim)
 import Check.Producer exposing (tuple, list)
 import List exposing (foldl, range, member)
-import Test exposing (Test, describe, test)
+import Test exposing (Test, describe)
 import Expect exposing (equal)
 import CheckCompat exposing (..)
 import Permission exposing (..)
@@ -48,8 +48,8 @@ traditionalTest =
             create "User 9" True [ NONE, VOTE, FORCE ]
     in
         describe "Real world workflow example"
-            [ test "Initially, workflow is not finished" <| \() -> equal False (finished workflow)
-            , test "But after approve it becomes finished" <| \() -> equal True (finished (approve finalUser workflow))
+            [ test "Initially, workflow is not finished" <| equal False (finished workflow)
+            , test "But after approve it becomes finished" <| equal True (finished (approve finalUser workflow))
             ]
 
 
